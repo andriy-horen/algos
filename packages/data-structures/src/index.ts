@@ -1,5 +1,5 @@
 import { BinaryTreeNode } from './tree/node';
-import { dfs } from './tree/operators';
+import { dfsRecursive } from './tree/operators';
 
 const root = new BinaryTreeNode<number>(
 	10,
@@ -27,24 +27,8 @@ const root = new BinaryTreeNode<number>(
 	)
 );
 
-const preValues: number[] = [];
-dfs(root, (value) => preValues.push(value), { recursive: true, order: 'pre' });
-console.log(`pre-order: ${preValues}`);
-
-const inValues: number[] = [];
-dfs(root, (value) => inValues.push(value), { recursive: true, order: 'in' });
-console.log(`in-order: ${inValues}`);
-
-const postValues: number[] = [];
-dfs(root, (value) => postValues.push(value), {
-	recursive: true,
-	order: 'post',
-});
-console.log(`post-order: ${postValues}`);
-
-const iterativeValues: number[] = [];
-dfs(root, (value) => iterativeValues.push(value), {
-	recursive: false,
-	order: 'post',
-});
-console.log(`iterative: ${iterativeValues}`);
+dfsRecursive(
+	root,
+	(value) => console.log(value)
+	//	(value) => console.log(value)
+);

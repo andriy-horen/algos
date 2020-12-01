@@ -1,89 +1,32 @@
 import { BinaryTreeNode } from './node';
 
-export function dfs<T>(
-	root: BinaryTreeNode<T>,
-	callback: (
-		value: T,
-		node: BinaryTreeNode<T>,
-		root: BinaryTreeNode<T>
-	) => void,
-	options: {
-		recursive: boolean;
-		order: 'pre' | 'in' | 'post';
-	} = { recursive: false, order: 'in' }
-): void {
-	if (options.recursive) {
-		return dfsRecursive(root, callback, options.order);
-	}
-	return dfsIterative(root, callback);
-}
+export type NodeVisitCallback<T> = (
+	value: T,
+	node: BinaryTreeNode<T>,
+	root: BinaryTreeNode<T>
+) => void;
 
-function dfsRecursive<T>(
+export function dfsRecursive<T>(
 	root: BinaryTreeNode<T>,
-	callback: (
-		value: T,
-		node: BinaryTreeNode<T>,
-		root: BinaryTreeNode<T>
-	) => void,
-	order: 'pre' | 'in' | 'post'
-) {
+	preOrderCallback?: NodeVisitCallback<T> | null,
+	inOrderCallback?: NodeVisitCallback<T> | null,
+	postOrderCallback?: NodeVisitCallback<T> | null
+): void {
 	if (!root) {
 		return;
 	}
-	const recursive = (node: BinaryTreeNode<T>) => {
-		if (order === 'pre') {
-			callback(node.value, node, root);
-		}
+
+	const dfsInternal = (node: BinaryTreeNode<T>) => {
+		preOrderCallback?.(node.value, node, root);
 		if (node.left) {
-			recursive(node.left);
+			dfsInternal(node.left);
 		}
-		if (order === 'in') {
-			callback(node.value, node, root);
-		}
+		inOrderCallback?.(node.value, node, root);
 		if (node.right) {
-			recursive(node.right);
+			dfsInternal(node.right);
 		}
-		if (order === 'post') {
-			callback(node.value, node, root);
-		}
+		postOrderCallback?.(node.value, node, root);
 	};
 
-	recursive(root);
-}
-
-function dfsIterative<T>(
-	root: BinaryTreeNode<T>,
-	callback: (
-		value: T,
-		node: BinaryTreeNode<T>,
-		root: BinaryTreeNode<T>
-	) => void
-) {
-	if (!root) {
-		return;
-	}
-
-	const stack = [root];
-	while (stack.length > 0) {
-		const current = stack.pop() as BinaryTreeNode<T>;
-		callback(current.value, current, root);
-		if (current.right) {
-			stack.push(current.right);
-		}
-		if (current.left) {
-			stack.push(current.left);
-		}
-	}
-}
-
-export function bfs<T>(
-	root: BinaryTreeNode<T>,
-	callback: (
-		value: T,
-		node: BinaryTreeNode<T>,
-		root: BinaryTreeNode<T>
-	) => void
-): void {
-	console.log(root);
-	console.log(callback);
+	dfsInternal(root);
 }
