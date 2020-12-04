@@ -1,10 +1,21 @@
+import { mod, nextPow2 } from '../utils';
+
 export class Deque<T> {
 	private readonly _minCapacity = 16;
 	private readonly _maxCapacity = Math.pow(2, 32) - 1;
+	private _head = 0;
 	private _capacity = 0;
 	private _length = 0;
 
-	[key: number]: T;
+	private get _tail(): number {
+		return mod(this._head + this._length - 1, this._capacity);
+	}
+
+	private get _tailNext(): number {
+		return mod(this._head + this._length, this._capacity);
+	}
+
+	[key: number]: T | undefined;
 
 	constructor(array?: T[]) {
 		if (array != null) {
@@ -12,28 +23,8 @@ export class Deque<T> {
 			array.forEach((value, index) => {
 				this[index] = value;
 			});
+			this._length = array.length;
 		}
-	}
-
-	public push(value: T): number {
-		const length = this._length;
-		// TODO : implement this method
-		this[-1] = value;
-		this.ensureCapacity(length + 1);
-
-		return (this._length = length + 1);
-	}
-
-	private ensureCapacity(size: number): void {
-		if (this._capacity < size) {
-			const sizeOrMin = Math.max(size, this._minCapacity);
-			const newCapacity = this.pow2AtLeast(sizeOrMin);
-			this._capacity = Math.max(newCapacity, this._maxCapacity);
-		}
-	}
-
-	private pow2AtLeast(size: number): number {
-		return Math.pow(2, Math.ceil(Math.log2(size)));
 	}
 
 	get capacity(): number {
@@ -42,5 +33,74 @@ export class Deque<T> {
 
 	get length(): number {
 		return this._length;
+	}
+
+	public push(value: T): number {
+		this.ensureCapacity(this._length + 1);
+		this[this._tailNext] = value;
+
+		return ++this._length;
+	}
+
+	public pop(): T | undefined {
+		if (this._length === 0) {
+			return undefined;
+		}
+
+		const deleted = this[this._tail];
+		this[this._tail] = undefined;
+		this._length--;
+
+		return deleted;
+	}
+
+	public shift(): T | undefined {
+		if (this._length === 0) {
+			return undefined;
+		}
+		const deleted = this[this._head];
+		this[this._head] = undefined;
+		this._head = mod(this._head + 1, this._capacity);
+		this._length--;
+
+		return deleted;
+	}
+
+	public unshift(value: T): number {
+		this.ensureCapacity(this._length + 1);
+		const index = mod(this._head - 1, this._capacity);
+		this[index] = value;
+		this._head = index;
+
+		return ++this._length;
+	}
+
+	public toString(): string {
+		let str = '';
+		for (let i = 0; i < this._length; i++) {
+			str += ', ' + this[mod(this._head + i, this._capacity)];
+		}
+		return str.substring(2);
+	}
+
+	private moveValues(
+		srcIndex: number,
+		destIndex: number,
+		length: number
+	): void {
+		for (let i = 0; i < length; i++) {
+			this[i + destIndex] = this[i + srcIndex];
+			this[i + srcIndex] = undefined;
+		}
+	}
+
+	private ensureCapacity(capacity: number): void {
+		if (this._capacity < capacity) {
+			let nextCapacity = nextPow2(Math.max(capacity, this._minCapacity));
+			nextCapacity = Math.min(nextCapacity, this._maxCapacity);
+
+			this.moveValues(0, this._capacity, this._head);
+			this._capacity = nextCapacity;
+		}
 	}
 }
