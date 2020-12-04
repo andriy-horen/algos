@@ -1,10 +1,10 @@
 import { mod, nextPow2 } from '../utils';
 
-export class Deque<T> {
+export class Deque<T> implements Iterable<T> {
 	private readonly _minCapacity = 16;
 	private readonly _maxCapacity = Math.pow(2, 32) - 1;
 	private _head = 0;
-	private _capacity = 0;
+	private _capacity = this._minCapacity;
 	private _length = 0;
 
 	private get _tail(): number {
@@ -20,9 +20,9 @@ export class Deque<T> {
 	constructor(array?: T[]) {
 		if (array != null) {
 			this.ensureCapacity(array.length);
-			array.forEach((value, index) => {
-				this[index] = value;
-			});
+			for (let i = 0; i < array.length; i++) {
+				this[i] = array[i];
+			}
 			this._length = array.length;
 		}
 	}
@@ -76,11 +76,26 @@ export class Deque<T> {
 	}
 
 	public toString(): string {
-		let str = '';
-		for (let i = 0; i < this._length; i++) {
-			str += ', ' + this[mod(this._head + i, this._capacity)];
-		}
-		return str.substring(2);
+		return [...this].toString();
+	}
+
+	[Symbol.iterator](): Iterator<T> {
+		let index = 0;
+		return {
+			next: (): IteratorResult<T> => {
+				if (index < this._length) {
+					const result = {
+						value: this[
+							mod(index + this._head, this._capacity)
+						] as T,
+						done: false,
+					};
+					index++;
+					return result;
+				}
+				return { value: undefined, done: true };
+			},
+		};
 	}
 
 	private moveValues(
