@@ -10,7 +10,7 @@ for (let i = 0; i < 1_000_000; i++) {
 }
 
 suite(
-	'1mil: shift and then push element',
+	'1 mil: shift and then push element',
 	add('deque', () => {
 		deq.push(deq.shift() as number);
 	}),
@@ -23,7 +23,7 @@ suite(
 );
 
 suite(
-	'1mil: pop and then unshift element',
+	'1 mil: pop and then unshift element',
 	add('deque', () => {
 		deq.unshift(deq.pop() as number);
 	}),
@@ -36,7 +36,7 @@ suite(
 );
 
 suite(
-	'1mil: pop and then push element',
+	'1 mil: pop and then push element',
 	add('deque', () => {
 		deq.push(deq.pop() as number);
 	}),
@@ -45,5 +45,5 @@ suite(
 	}),
 	complete(),
 	cycle(),
-	save({ file: 'pop-unshift-1mil' })
+	save({ file: 'pop-push-1mil' })
 );
