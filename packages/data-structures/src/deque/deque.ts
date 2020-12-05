@@ -11,11 +11,12 @@ export class Deque<T> implements Iterable<T> {
 
 	constructor(array?: T[]) {
 		if (array != null) {
-			this.ensureCapacity(array.length);
-			for (let i = 0; i < array.length; i++) {
+			const arrLength = array.length;
+			this.ensureCapacity(arrLength);
+			for (let i = 0; i < arrLength; i++) {
 				this[i] = array[i];
 			}
-			this._length = array.length;
+			this._length = arrLength;
 		}
 	}
 
@@ -28,45 +29,53 @@ export class Deque<T> implements Iterable<T> {
 	}
 
 	public push(value: T): number {
-		this.ensureCapacity(this._length + 1);
-		const tailNext = (this._head + this._length) % this._capacity;
+		const length = this._length;
+		this.ensureCapacity(length + 1);
+		const tailNext = (this._head + length) & (this._capacity - 1);
 		this[tailNext] = value;
 
-		return ++this._length;
+		return (this._length = length + 1);
 	}
 
 	public pop(): T | undefined {
-		if (this._length === 0) {
+		const length = this._length;
+		if (length === 0) {
 			return undefined;
 		}
 
-		const tail = (this._head + this._length - 1) % this._capacity;
+		const tail = (this._head + length - 1) & (this._capacity - 1);
 		const deleted = this[tail];
 		this[tail] = undefined;
-		this._length--;
+		this._length = length - 1;
 
 		return deleted;
 	}
 
 	public shift(): T | undefined {
-		if (this._length === 0) {
+		const length = this._length;
+		if (length === 0) {
 			return undefined;
 		}
-		const deleted = this[this._head];
-		this[this._head] = undefined;
-		this._head = mod(this._head + 1, this._capacity);
-		this._length--;
+		const head = this._head;
+		const capacity = this._capacity;
+		const deleted = this[head];
+		this[head] = undefined;
+		this._head = (((head + 1) & (capacity - 1)) ^ capacity) - capacity;
+		this._length = length - 1;
 
 		return deleted;
 	}
 
 	public unshift(value: T): number {
-		this.ensureCapacity(this._length + 1);
-		const index = mod(this._head - 1, this._capacity);
+		const length = this._length;
+		const head = this._head;
+		this.ensureCapacity(length + 1);
+		const capacity = this._capacity;
+		const index = (((head - 1) & (capacity - 1)) ^ capacity) - capacity;
 		this[index] = value;
 		this._head = index;
 
-		return ++this._length;
+		return (this._length = length + 1);
 	}
 
 	public toString(): string {
@@ -79,9 +88,7 @@ export class Deque<T> implements Iterable<T> {
 			next: (): IteratorResult<T> => {
 				if (index < this._length) {
 					const result = {
-						value: this[
-							mod(index + this._head, this._capacity)
-						] as T,
+						value: this[(index + this._head) % this._capacity] as T,
 						done: false,
 					};
 					index++;

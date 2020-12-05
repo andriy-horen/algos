@@ -1,3 +1,4 @@
+import { getRandomInt } from '../utils';
 import { Deque } from './deque';
 
 describe('Deque constructor', () => {
@@ -377,9 +378,45 @@ describe('Shift method', () => {
 });
 
 describe('ToString method', () => {
-	test('should convert collection to a string', () => {
+	test('it should convert collection to a string', () => {
 		const deq = new Deque([100, 10, 0, -9, -99, -999]);
 
 		expect(deq.toString()).toEqual('100,10,0,-9,-99,-999');
+	});
+});
+
+describe('Random tests', () => {
+	test('it should work the same as built-in array', () => {
+		const values = [...Array(10_000)].map(() => Math.random());
+		const array: number[] = [];
+		const deq = new Deque<number>();
+
+		const actions = [
+			(i: number) => {
+				array.push(values[i]);
+				deq.push(values[i]);
+			},
+			(i: number) => {
+				array.unshift(values[i]);
+				deq.unshift(values[i]);
+			},
+			() => {
+				array.pop();
+				deq.pop();
+			},
+			() => {
+				array.shift();
+				deq.shift();
+			},
+		];
+
+		for (let i = 0; i < 10_000; i++) {
+			const actionIndex = getRandomInt(0, 3);
+			actions[actionIndex](i);
+		}
+
+		expect(deq.length).toEqual(array.length);
+		expect([...deq]).toEqual(array);
+		expect(deq.capacity).toBeGreaterThanOrEqual(deq.length);
 	});
 });
