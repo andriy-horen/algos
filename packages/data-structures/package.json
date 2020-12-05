@@ -9,7 +9,7 @@
 		"dev": "nodemon",
 		"test": "jest",
 		"test:watch": "jest --watch",
-		"bench": "node --max_old_space_size=16384 -r ts-node/register ./benchmark/one-mil"
+		"bench": "node --max_old_space_size=16384 -r ts-node/register ./benchmark/index"
 	},
 	"keywords": [],
 	"author": "Andriy Horen",
