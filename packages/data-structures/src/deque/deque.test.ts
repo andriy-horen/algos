@@ -410,13 +410,17 @@ describe('Random tests', () => {
 			},
 		];
 
+		const weights = [0, 0, 1, 1, 2, 3];
+
 		for (let i = 0; i < 10_000; i++) {
-			const actionIndex = getRandomInt(0, 3);
-			actions[actionIndex](i);
+			const action = getRandomInt(0, weights.length - 1);
+			actions[weights[action]](i);
 		}
 
 		expect(deq.length).toEqual(array.length);
 		expect([...deq]).toEqual(array);
 		expect(deq.capacity).toBeGreaterThanOrEqual(deq.length);
+
+		console.log([...deq]);
 	});
 });
