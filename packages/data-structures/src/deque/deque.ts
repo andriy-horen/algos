@@ -7,14 +7,6 @@ export class Deque<T> implements Iterable<T> {
 	private _capacity = this._minCapacity;
 	private _length = 0;
 
-	private get _tail(): number {
-		return mod(this._head + this._length - 1, this._capacity);
-	}
-
-	private get _tailNext(): number {
-		return mod(this._head + this._length, this._capacity);
-	}
-
 	[key: number]: T | undefined;
 
 	constructor(array?: T[]) {
@@ -37,7 +29,8 @@ export class Deque<T> implements Iterable<T> {
 
 	public push(value: T): number {
 		this.ensureCapacity(this._length + 1);
-		this[this._tailNext] = value;
+		const tailNext = (this._head + this._length) % this._capacity;
+		this[tailNext] = value;
 
 		return ++this._length;
 	}
@@ -47,8 +40,9 @@ export class Deque<T> implements Iterable<T> {
 			return undefined;
 		}
 
-		const deleted = this[this._tail];
-		this[this._tail] = undefined;
+		const tail = (this._head + this._length - 1) % this._capacity;
+		const deleted = this[tail];
+		this[tail] = undefined;
 		this._length--;
 
 		return deleted;
